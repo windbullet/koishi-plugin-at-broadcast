@@ -1,6 +1,6 @@
 {
   "name": "koishi-plugin-at-broadcast",
-  "description": "待定",
+  "description": "用户可以订阅广播，拥有权限的人可以发起广播，已订阅的用户将会被at并且看到广播内容，可选择指定群或所有群广播！",
   "version": "0.0.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -9,6 +9,11 @@
     "dist"
   ],
   "license": "MIT",
+  "homepage": "https://github.com/windbullet/koishi-plugin-at-broadcast",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/windbullet/koishi-plugin-at-broadcast.git"
+  },
   "scripts": {},
   "keywords": [
     "chatbot",
