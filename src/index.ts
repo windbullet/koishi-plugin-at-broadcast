@@ -4,6 +4,20 @@ export const name = 'at-broadcast'
 
 export const using = ['database']
 
+export const usage = `
+群聊使用方法：
+
+    订阅广播 有广播时会被at
+
+    取消订阅广播 取消订阅广播（不然呢？）
+
+私聊使用方法（需要超级管理员，可在配置页设置）：
+
+    广播 <群号> <广播内容> 向指定群聊广播
+
+    全域广播 <广播内容> 向所有群广播
+`
+
 declare module 'koishi' {
   interface Tables {
       broadcastData: BroadcastData
@@ -65,7 +79,8 @@ export function apply(ctx: Context, config: Config) {
       return h("quote", {id: session.event.message.id}) + "已取消订阅"
     })
 
-  ctx.private().command("广播 <guildId:string> <message:text>")
+  ctx.private().command("广播 <guildId:string> <message:text>", "向指定群广播消息")
+    .example("广播 114514 Koishi更新了5.14.1版本")
     .action(async ({session}, guildId, message) => {
       if (config.超级管理员.includes(session.event.user.id)) {
         let result = ""
@@ -85,7 +100,8 @@ export function apply(ctx: Context, config: Config) {
       return h("quote", {id: session.event.message.id}) + "你没有权限"
     })
 
-  ctx.private().command("全域广播 <message:text>")
+  ctx.private().command("全域广播 <message:text>", "向所有群广播消息")
+    .example("全域广播 Koishi更新了5.14.1版本")
     .action(async ({session}, message) => {
       if (config.超级管理员.includes(session.event.user.id)) {
         let guilds = ["收到广播的群聊："]
