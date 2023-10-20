@@ -25,7 +25,7 @@ export const Config: Schema<Config> = Schema.object({
   .description("允许广播或全域广播的人，每个项目放一个ID"),
 })
 
-export function apply(ctx: Context) {
+export function apply(ctx: Context, config: Config) {
   extendTable(ctx)
   ctx.guild().command("订阅广播", "有广播时你将会被at")
     .action(async ({session}) => {
@@ -67,41 +67,47 @@ export function apply(ctx: Context) {
 
   ctx.private().command("广播 <guildId:string> <message:text>")
     .action(async ({session}, guildId, message) => {
-      let result = ""
-      let data = await ctx.database.get("broadcastData", {
-        guildId: guildId,
-      });
-      if (data.length === 0) {
-        return h("quote", {id: session.event.message.id}) + "该群还没有人订阅广播"
+      if (config.超级管理员.includes(session.event.user.id)) {
+        let result = ""
+        let data = await ctx.database.get("broadcastData", {
+          guildId: guildId,
+        });
+        if (data.length === 0) {
+          return h("quote", {id: session.event.message.id}) + "该群还没有人订阅广播"
+        }
+        for (let i of data[0].userId) {
+          result += `<at id="${+i}"/>`
+        }
+        result += ` ${message}`
+        session.bot.sendMessage(guildId, result)
+        return h("quote", {id: session.event.message.id}) + `群聊：${guildId} 广播成功`
       }
-      for (let i of data[0].userId) {
-        result += `<at id="${+i}"/>`
-      }
-      result += ` ${message}`
-      session.bot.sendMessage(guildId, result)
-      return h("quote", {id: session.event.message.id}) + `群聊：${guildId} 广播成功`
+      return h("quote", {id: session.event.message.id}) + "你没有权限"
     })
 
   ctx.private().command("全域广播 <message:text>")
     .action(async ({session}, message) => {
-      let guilds = ["收到广播的群聊："]
-      let data = await ctx.database
-      .select("broadcastData")
-      .orderBy("id", "desc")
-      .execute()
-      if (data.length === 0) {
-        return h("quote", {id: session.event.message.id}) + "还没有人订阅广播"
-      }
-      for (let i of data) {
-        let result = ""
-        for (let j of i.userId) {
-          result += `<at id="${+j}"/>`
+      if (config.超级管理员.includes(session.event.user.id)) {
+        let guilds = ["收到广播的群聊："]
+        let data = await ctx.database
+        .select("broadcastData")
+        .orderBy("id", "desc")
+        .execute()
+        if (data.length === 0) {
+          return h("quote", {id: session.event.message.id}) + "还没有人订阅广播"
         }
-        result += ` ${message}`
-        session.bot.sendMessage(i.guildId, result)
-        guilds.push(i.guildId)
+        for (let i of data) {
+          let result = ""
+          for (let j of i.userId) {
+            result += `<at id="${+j}"/>`
+          }
+          result += ` ${message}`
+          session.bot.sendMessage(i.guildId, result)
+          guilds.push(i.guildId)
+        }
+        return h("quote", {id: session.event.message.id}) + `全域广播成功\n` + guilds.join("\n")
       }
-      return h("quote", {id: session.event.message.id}) + `全域广播成功\n` + guilds.join("\n")
+      return h("quote", {id: session.event.message.id}) + "你没有权限"
     })
 
 }
