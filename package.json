@@ -17,5 +17,12 @@
   ],
   "peerDependencies": {
     "koishi": "4.15.0"
+  },
+  "koishi": {
+    "service": {
+      "required": ["database"],    
+      "optional": [],       
+      "implements": []
+    }
   }
 }
