@@ -5,7 +5,7 @@ export const name = 'at-broadcast'
 export const using = ['database']
 
 export const usage = `
-## 如果你是旧版本用户，需要在数据库中的broadcastData表中向空的group字段中添加组名，否则将会遇到bug
+## 如果你是旧版本用户，需要在数据库中的broadcastData表中向空的group字段中添加组名或删除该项目，否则可能会遇到bug
 
 群聊使用方法：
 
