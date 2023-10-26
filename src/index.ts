@@ -60,7 +60,7 @@ export function apply(ctx: Context, config: Config) {
   extendTable(ctx)
   ctx.command("广播", "订阅制广播")
 
-  ctx.guild().command("广播").subcommand(".创建订阅分组 <name:string>", "创建一个分组，广播时按分组广播", {checkArgCount: true}).alias("创建订阅分组")
+  ctx.guild().command("广播.创建订阅分组 <name:string>", "创建一个分组，广播时按分组广播", {checkArgCount: true}).alias("创建订阅分组")
     .example("广播.创建订阅分组 Koishi更新通知")
     .action(async ({session}, name) => {
       if (config.超级管理员.includes(session.event.user.id)) {
@@ -82,7 +82,7 @@ export function apply(ctx: Context, config: Config) {
       return h("quote", {id: session.event.message.id}) + "你没有权限"
     })
 
-  ctx.guild().command("广播").subcommand(".删除订阅分组 <group:string>", "删除一个分组", {checkArgCount: true}).alias("删除订阅分组")
+  ctx.guild().command("广播.删除订阅分组 <group:string>", "删除一个分组", {checkArgCount: true}).alias("删除订阅分组")
     .example("广播.删除订阅分组 Koishi更新通知")
     .action(async ({session}, group) => {
       if (config.超级管理员.includes(session.event.user.id)) {
@@ -102,7 +102,7 @@ export function apply(ctx: Context, config: Config) {
       return h("quote", {id: session.event.message.id}) + "你没有权限"
     })
 
-  ctx.guild().command("广播").subcommand(".订阅广播 <group:string>", "订阅的分组有广播时你将会被at", {checkArgCount: true}).alias("订阅广播")
+  ctx.guild().command("广播.订阅广播 <group:string>", "订阅的分组有广播时你将会被at", {checkArgCount: true}).alias("订阅广播")
     .action(async ({session}, group) => {
       let data = await ctx.database.get("broadcastData", {
         guildId: session.event.guild.id,
@@ -123,7 +123,7 @@ export function apply(ctx: Context, config: Config) {
       
     })
 
-  ctx.guild().command("广播").subcommand(".取消订阅广播 <group:string>", {checkArgCount: true}).alias("取消订阅广播")
+  ctx.guild().command("广播.取消订阅广播 <group:string>", {checkArgCount: true}).alias("取消订阅广播")
     .action(async ({session}, group) => {
       let data = await ctx.database.get("broadcastData", {
         guildId: session.event.guild.id,
@@ -143,7 +143,7 @@ export function apply(ctx: Context, config: Config) {
       
     })
 
-  ctx.private().command("广播").subcommand(".发起广播 <guildId:string> <group:string> <message:text>", "向指定群的指定分组广播消息", {checkArgCount: true}).alias("发起广播")
+  ctx.private().command("广播.发起广播 <guildId:string> <group:string> <message:text>", "向指定群的指定分组广播消息", {checkArgCount: true}).alias("发起广播")
     .example("广播.发起广播 114514 Koishi更新通知 Koishi更新了5.14.1版本")
     .action(async ({session}, guildId, group, message) => {
       if (config.超级管理员.includes(session.event.user.id)) {
@@ -169,7 +169,7 @@ export function apply(ctx: Context, config: Config) {
       return h("quote", {id: session.event.message.id}) + "你没有权限"
     })
 
-  ctx.private().command("广播").subcommand(".全域广播 <group:string> <message:text>", "向所有群的指定分组广播消息", {checkArgCount: true}).alias("全域广播")
+  ctx.private().command("广播.全域广播 <group:string> <message:text>", "向所有群的指定分组广播消息", {checkArgCount: true}).alias("全域广播")
     .example("广播.全域广播 Koishi更新了5.14.1版本")
     .action(async ({session}, group, message) => {
       if (config.超级管理员.includes(session.event.user.id)) {
