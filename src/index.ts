@@ -1,4 +1,4 @@
-import { Context, Schema, segment, h } from 'koishi'
+import { Context, Schema, segment, h, $ } from 'koishi'
 
 export const name = 'at-broadcast'
 
@@ -31,7 +31,9 @@ export const usage = `
 
 > 全域广播 <组名> <广播内容>  
 >> 需要超级管理员  
->> 向所有群的指定分组广播
+>> 向所有群的指定分组广播  
+>> 可选选项：-s 不向无人订阅的分组广播  
+>> 注意：参数请写在最前面，不然会被当成广播消息的一部分！
 `
 
 declare module 'koishi' {
@@ -170,8 +172,10 @@ export function apply(ctx: Context, config: Config) {
     })
 
   ctx.private().command("广播.全域广播 <group:string> <message:text>", "向所有群的指定分组广播消息", {checkArgCount: true}).alias("全域广播")
+    .option("subscribed", "-s 不向无人订阅的分组广播")
+    .usage('注意：参数请写在最前面，不然会被当成广播消息的一部分！')
     .example("广播.全域广播 Koishi更新了5.14.1版本")
-    .action(async ({session}, group, message) => {
+    .action(async ({session, options}, group, message) => {
       if (config.超级管理员.includes(session.event.user.id)) {
         let guilds = ["收到广播的群聊："]
         let data = await ctx.database
@@ -183,12 +187,16 @@ export function apply(ctx: Context, config: Config) {
         }
         for (let i of data) {
           let result = ""
+          if (options.subscribed && i.userId.length === 0) continue
           for (let j of i.userId) {
             result += `<at id="${+j}"/>`
           }
           result += ` ${message}`
           session.bot.sendMessage(i.guildId, result)
           guilds.push(i.guildId)
+        }
+        if (guilds.length === 1) {
+          return h("quote", {id: session.event.message.id}) + "该分组在所有群都没有订阅者"
         }
         return h("quote", {id: session.event.message.id}) + `全域广播成功\n` + guilds.join("\n")
       }

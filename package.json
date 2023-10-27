@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-at-broadcast",
   "description": "用户可以按分组订阅广播，拥有权限的人可以按分组发起广播，已订阅的用户将会被at并且看到广播内容，可选择指定群或所有群广播！",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
