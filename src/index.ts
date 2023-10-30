@@ -2,18 +2,18 @@ import { Context, Schema, segment, h, $ } from 'koishi'
 
 export const name = 'at-broadcast'
 
-export const using = ['database']
+export const inject = ['database']
 
 export const usage = `
 ## 如果你是旧版本用户，需要在数据库中的broadcastData表中向空的group字段中添加组名或删除该项目，否则可能会遇到bug
 
 群聊使用方法：
 
-> 创建订阅分组 <组名>
+> 创建广播分组 <组名>
 >> 需要超级管理员  
 >> 创建一个分组，广播时按分组广播
 
-> 删除订阅分组 <组名>
+> 删除广播分组 <组名>
 >> 需要超级管理员  
 >> 删除一个分组
 
@@ -62,8 +62,8 @@ export function apply(ctx: Context, config: Config) {
   extendTable(ctx)
   ctx.command("广播", "订阅制广播")
 
-  ctx.guild().command("广播.创建订阅分组 <name:string>", "创建一个分组，广播时按分组广播", {checkArgCount: true}).alias("创建订阅分组")
-    .example("广播.创建订阅分组 Koishi更新通知")
+  ctx.guild().command("广播.创建广播分组 <name:string>", "创建一个分组，广播时按分组广播", {checkArgCount: true}).alias("创建广播分组")
+    .example("广播.创建广播分组 Koishi更新通知")
     .action(async ({session}, name) => {
       if (config.超级管理员.includes(session.event.user.id)) {
         let data = await ctx.database.get("broadcastData", {
@@ -78,14 +78,14 @@ export function apply(ctx: Context, config: Config) {
             group: name,
             userId: [],
           })
-          return h("quote", {id: session.event.message.id}) + "订阅分组创建成功"
+          return h("quote", {id: session.event.message.id}) + "广播分组创建成功"
         }
       } 
       return h("quote", {id: session.event.message.id}) + "你没有权限"
     })
 
-  ctx.guild().command("广播.删除订阅分组 <group:string>", "删除一个分组", {checkArgCount: true}).alias("删除订阅分组")
-    .example("广播.删除订阅分组 Koishi更新通知")
+  ctx.guild().command("广播.删除广播分组 <group:string>", "删除一个分组", {checkArgCount: true}).alias("删除广播分组")
+    .example("广播.删除广播分组 Koishi更新通知")
     .action(async ({session}, group) => {
       if (config.超级管理员.includes(session.event.user.id)) {
         let data = await ctx.database.get("broadcastData", {
@@ -99,9 +99,38 @@ export function apply(ctx: Context, config: Config) {
           guildId: session.event.guild.id,
           group: group,
         })
-        return h("quote", {id: session.event.message.id}) + "删除订阅分组成功"
+        return h("quote", {id: session.event.message.id}) + "删除广播分组成功"
       } 
       return h("quote", {id: session.event.message.id}) + "你没有权限"
+    })
+
+  ctx.guild().command("广播.查看全部分组", "查看本群全部的广播分组").alias("查看全部分组")
+    .action(async ({session}) => {
+      let data = await ctx.database.get("broadcastData", {
+        guildId: session.event.guild.id,
+      })
+      if (data.length === 0) {
+        return h("quote", {id: session.event.message.id}) + "本群暂无广播分组"
+      }
+      return h("quote", {id: session.event.message.id}) + 
+        "本群的广播分组有:\n" + data
+          .map(item => item.group)
+          .join("\n")
+    })
+
+  ctx.guild().command("广播.查看我的订阅", "查看你已订阅的本群分组").alias("查看我的订阅")
+    .action(async ({session}) => {
+      let data = await ctx.database.get("broadcastData", {
+        guildId: session.event.guild.id,
+      })
+      if (data.length === 0) {
+        return h("quote", {id: session.event.message.id}) + "你还没有在本群订阅任何分组"
+      }
+      return h("quote", {id: session.event.message.id}) + 
+        "你订阅的分组有:\n" + data
+          .filter(item => item.userId.includes(session.event.user.id))
+          .map(item => item.group)
+          .join("\n")
     })
 
   ctx.guild().command("广播.订阅广播 <group:string>", "订阅的分组有广播时你将会被at", {checkArgCount: true}).alias("订阅广播")
